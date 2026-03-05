@@ -21,7 +21,14 @@ import random
 
 #Juego Generala 
 
+'falta agregar algo que priorize y no permita anotar dos cosas en una misma tirada.'
+
 #5 dados + 2 jugadores
+
+jug = [0,1]
+opciones = ["1", "2", "3", "4", "5", "6", "E", "F", "P", "G"]
+plantilla =[[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0]]
+puntos = [0,0]
 
 #TURNOS 
 #3 turnos, cada turno 5 dados 
@@ -31,13 +38,12 @@ def tirada_dados(cantidad):
         dados.append(random.randint(1,6)) 
     return dados
 
-tirada = tirada_dados(5)
-
-def jugar_turno(jugador, planilla):
+def jugar_turno():
     cantidad = 0
     dados = 5
     tirada = tirada_dados(dados)
     while cantidad < 3:
+        tirada.sort()
         print(tirada)
         continuar = input("Queres cambiar los dados (si/no)")
         if continuar == "no":
@@ -49,21 +55,130 @@ def jugar_turno(jugador, planilla):
             for i in indices:
                 if 0 <= i < len(tirada):
                     tirada[i] = random.randint(1,6)
-                    
         tirada.sort()
-        print("tu tirada final es:", tirada)
-    return tirada
+    print("tu tirada final es:", tirada)
+    return tirada, cantidad
 
-jug = 1
-opciones = ["1", "2", "3", "4", "5", "6", "E", "F", "P", "G"]
-plantilla =[]
 
-jugar_turno(jug, plant)
-
-def llenar_plantilla(tirada;plantilla):
+def llenar_plantilla(tirada,plantilla,cant,jugador):
     tirada.sort()
-    cantidades = [0,0,0,0,0]
+    cantidades = [0,0,0,0,0,0]
+
     for i in tirada:
         cantidades[i-1] += 1
-    for i in cantidades:
+    print(cantidades)
+
+    for i in range(0,len(cantidades)):
         
+        if cantidades[i] == 5:
+            print("GENERALA")
+            if plantilla[jugador][9] == 0:
+                primer = input("queres anotar esto? ")
+                if primer == "si":
+                    plantilla[jugador][9] = 1
+                if cant == 1:
+                    puntos[jugador] += 80
+                else:
+                    puntos[jugador] += 50
+
+            elif plantilla[jugador][i] == 0:
+                print("Ya completaste la generala, anotamos", opciones[i])
+                primer = input("queres anotar esto? ")
+                if primer == "si":
+                    plantilla[jugador][i] = 1
+            
+            else:
+                print("no podemos anotar nada")
+
+        print("pasamos generala ", plantilla)
+
+        if cantidades[i] == 4:
+            print("POKER")
+            if plantilla[jugador][8] == 0:
+                primer = input("queres anotar esto? ")
+                if primer == "si":
+                    plantilla[jugador][8] = 1
+            elif plantilla[jugador][i] == 0:
+                print("Ya completaste el poker, anotamos", opciones[i])
+                primer = input("queres anotar esto? ")
+                if primer == "si":
+                    plantilla[jugador][i] = 1
+            else:
+                print("no podemos anotar nada")
+
+        print("pasamos poker ", plantilla)
+
+        if cantidades[i] == 3:
+            for otro in range(0,len(cantidades)):
+                if cantidades[otro] == 2:
+                    print("FULL")
+                    if plantilla[jugador][7] == 0:
+                        primer = input("queres anotar esto? ")
+                        if primer == "si":
+                            plantilla[jugador][7] = 1
+                        
+                    elif plantilla[jugador][i] == 0 and plantilla[jugador][otro] == 0:
+                        print("Ya completaste la full")
+                        primer = input("queres anotar esto? ")
+                        if primer == "si":
+                            op = int (input("queres completar 3 dados o 2 dados?"))
+                            plantilla[jugador][op-1] = 1
+                        
+                    elif plantilla[jugador][i] == 0:
+                        print("Ya completaste la full, anotamos: ", opciones[i])
+                        primer = input("queres anotar esto? ")
+                        if primer == "si":
+                                plantilla[jugador][i] = 1
+                        
+                    else:
+                        print("no podemos anotar nada")
+
+        print("pasamos full ", plantilla)
+
+        if cantidades[i] == 2:
+            print("DOBLE ", opciones[i])
+            if plantilla[jugador][i] == 0:
+                primer = input("queres anotar esto? ")
+                if primer == "si":
+                    plantilla[jugador][i] = 1
+            else:
+                print("no anotamos nada")
+
+        if cantidades[i] == 1:
+            print("UN ", opciones[i])
+            if plantilla[jugador][i] == 0:
+                primer = input("queres anotar esto? ")
+                if primer == "si":
+                    plantilla[jugador][i] = 1
+            else:
+                print("no anotamos nada")
+
+        print("pasamos poker ", plantilla)
+
+
+def juego_final(jugadores,plantilla):
+    print("Bienvenido a la GENERALA")
+    empezar = 0
+    completo = [0,0]
+    juego = True
+    while empezar != "1":
+        empezar = input('ingresa 1 para empezar: ')
+    while juego == True:
+        for j in jugadores:
+            print("cambio de turno")
+            tirada,c = jugar_turno()
+            llenar_plantilla(tirada, plantilla,c,j)
+            for p in plantilla:
+                if p == 0:
+                    juego == True
+                else:
+                    completo[j] += 1
+            if plantilla[j][9] == 0 and c == 1:
+                juego == False
+        if completo[1] >= 5 and completo[0] >= 5:
+            juego == False
+    print("se termino el juego")
+    print("gano el jugador: ", max(puntos[0], puntos[1]))
+
+
+juego_final(jug, plantilla)
