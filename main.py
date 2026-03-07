@@ -21,8 +21,6 @@ import random
 
 #Juego Generala 
 
-'falta agregar algo que priorize y no permita anotar dos cosas en una misma tirada.'
-
 #5 dados + 2 jugadores
 
 #TURNOS 
